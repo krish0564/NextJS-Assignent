@@ -1,0 +1,11 @@
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema({
+  user: { type: String, required: true },
+  interest: { type: [String] },
+  age: { type: Number, required: true },
+  mobile: { type: Number, required: true },
+  email: { type: String, required: true, unique: true }
+});
+
+export default mongoose.model("User", userSchema);
