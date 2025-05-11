@@ -1,81 +1,94 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { getUserById, deleteUser } from "@/lib/api"
-import type { User } from "@/lib/types"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
+import { use } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { getUserById, deleteUser } from "@/lib/api";
+import type { User } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
 
-export default function UserDetailPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+export default function UserDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params); // ✅ unwrap the promise
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // Skip fetching if the ID is "new"
-        if (params.id === "new") {
-          setLoading(false)
-          return
+        if (id === "new") {
+          setLoading(false);
+          return;
         }
 
-        setLoading(true)
-        const userData = await getUserById(params.id)
-        setUser(userData)
+        setLoading(true);
+        const userData = await getUserById(id);
+        setUser(userData);
       } catch (error) {
-        console.error("Error fetching user:", error)
+        console.error("Error fetching user:", error);
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to load user details",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to load user details",
           variant: "destructive",
-        })
-        // Navigate back to the home page if user not found
-        router.push("/")
+        });
+        router.push("/");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUser()
-  }, [params.id, router])
+    fetchUser();
+  }, [id, router]);
 
   const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this user?")) {
       try {
-        await deleteUser(params.id)
+        await deleteUser(id);
         toast({
           title: "Success",
           description: "User deleted successfully",
-        })
-        router.push("/")
+        });
+        router.push("/");
       } catch (error) {
-        console.error("Error deleting user:", error)
+        console.error("Error deleting user:", error);
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to delete user",
+          description:
+            error instanceof Error ? error.message : "Failed to delete user",
           variant: "destructive",
-        })
+        });
       }
     }
-  }
+  };
 
-  if (params.id === "new") {
-    // Redirect to the new user page
-    router.push("/users/new")
-    return <div className="container mx-auto py-10 px-4">Redirecting...</div>
+  if (id === "new") {
+    router.push("/users/new");
+    return <div className="container mx-auto py-10 px-4">Redirecting...</div>;
   }
 
   if (loading) {
-    return <div className="container mx-auto py-10 px-4">Loading...</div>
+    return <div className="container mx-auto py-10 px-4">Loading...</div>;
   }
 
   if (!user) {
-    return <div className="container mx-auto py-10 px-4">User not found</div>
+    return <div className="container mx-auto py-10 px-4">User not found</div>;
   }
 
   return (
@@ -83,7 +96,10 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">User Details</h1>
         <div className="flex gap-2">
-          <Link href="/" className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+          <Link
+            href="/"
+            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+          >
             Back to List
           </Link>
         </div>
@@ -119,7 +135,7 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Link
-            href={`/users/${params.id}/edit`}
+            href={`/users/${id}/edit`}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
           >
             Edit
@@ -130,5 +146,5 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

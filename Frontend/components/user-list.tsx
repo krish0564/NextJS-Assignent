@@ -1,40 +1,48 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { getUsers } from "@/lib/api"
-import type { User } from "@/lib/types"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { toast } from "@/components/ui/use-toast"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { getUsers } from "@/lib/api";
+import type { User } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
 
 export function UserList() {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        setLoading(true)
-        const data = await getUsers()
-        setUsers(data)
+        setLoading(true);
+        const data = await getUsers();
+        setUsers(data);
       } catch (error) {
-        console.error("Error fetching users:", error)
+        console.error("Error fetching users:", error);
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to load users",
+          description:
+            error instanceof Error ? error.message : "Failed to load users",
           variant: "destructive",
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUsers()
-  }, [])
+    fetchUsers();
+  }, []);
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   return (
@@ -59,7 +67,7 @@ export function UserList() {
             </TableRow>
           ) : (
             users.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow key={user._id}>
                 <TableCell className="font-medium">{user.user}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.age}</TableCell>
@@ -76,13 +84,13 @@ export function UserList() {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Link
-                      href={`/users/${user.id}`}
+                      href={`/users/${user._id}`}
                       className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-md text-sm"
                     >
                       View
                     </Link>
                     <Link
-                      href={`/users/${user.id}/edit`}
+                      href={`/users/${user._id}/edit`}
                       className="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-md text-sm"
                     >
                       Edit
@@ -95,5 +103,5 @@ export function UserList() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

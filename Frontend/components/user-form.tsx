@@ -1,17 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import type { User } from "@/lib/types"
-import { createUser, updateUser } from "@/lib/api"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import type { User } from "@/lib/types";
+import { createUser, updateUser } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
 
 // Define the form schema with validation
 const formSchema = z.object({
@@ -31,20 +39,20 @@ const formSchema = z.object({
     val
       .split(",")
       .map((item) => item.trim())
-      .filter(Boolean),
+      .filter(Boolean)
   ),
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 interface UserFormProps {
-  initialData?: User
-  userId?: string
+  initialData?: User;
+  userId?: string;
 }
 
 export function UserForm({ initialData, userId }: UserFormProps) {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize the form with default values or existing user data
   const form = useForm<FormValues>({
@@ -53,50 +61,48 @@ export function UserForm({ initialData, userId }: UserFormProps) {
       ? {
           user: initialData.user,
           email: initialData.email,
-          age: initialData.age,
-          mobile: initialData.mobile,
+          age: initialData.age ?? 0,
+          mobile: initialData.mobile ?? 0,
           interest: initialData.interest.join(", "),
         }
       : {
           user: "",
           email: "",
-          age: undefined,
-          mobile: undefined,
+          age: 0, // ✅ use 0 instead of undefined
+          mobile: 0, // ✅ same here
           interest: "",
         },
-  })
+  });
 
   async function onSubmit(values: FormValues) {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       if (userId) {
         // Update existing user
-        await updateUser(userId, {
-          ...values,
-          id: userId,
-        })
+        await updateUser(userId, values);
         toast({
           title: "Success",
           description: "User updated successfully",
-        })
+        });
       } else {
         // Create new user
-        await createUser(values)
+        await createUser(values);
         toast({
           title: "Success",
           description: "User created successfully",
-        })
+        });
       }
-      router.push("/")
+      router.push("/");
     } catch (error) {
-      console.error("Error:", error)
+      console.error("Error:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
@@ -114,7 +120,9 @@ export function UserForm({ initialData, userId }: UserFormProps) {
                   <FormControl>
                     <Input placeholder="Enter username" {...field} />
                   </FormControl>
-                  <FormDescription>This is the display name for the user.</FormDescription>
+                  <FormDescription>
+                    This is the display name for the user.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -127,7 +135,11 @@ export function UserForm({ initialData, userId }: UserFormProps) {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Enter email address" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="Enter email address"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,7 +167,11 @@ export function UserForm({ initialData, userId }: UserFormProps) {
                 <FormItem>
                   <FormLabel>Mobile Number</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter mobile number" {...field} />
+                    <Input
+                      type="number"
+                      placeholder="Enter mobile number"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,25 +185,39 @@ export function UserForm({ initialData, userId }: UserFormProps) {
                 <FormItem>
                   <FormLabel>Interests</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter interests (comma separated)" {...field} />
+                    <Input
+                      placeholder="Enter interests (comma separated)"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormDescription>Enter interests separated by commas (e.g., Comics, Sports, Music)</FormDescription>
+                  <FormDescription>
+                    Enter interests separated by commas (e.g., Comics, Sports,
+                    Music)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => router.push("/")}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push("/")}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : userId ? "Update User" : "Create User"}
+                {isSubmitting
+                  ? "Saving..."
+                  : userId
+                  ? "Update User"
+                  : "Create User"}
               </Button>
             </div>
           </form>
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }
